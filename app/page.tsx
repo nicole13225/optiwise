@@ -4,23 +4,28 @@ import { useState } from "react";
 
 export default function Home() {
   const [strategy, setStrategy] = useState<"call" | "put">("call");
-  const [strike, setStrike] = useState(100);
-  const [premium, setPremium] = useState(3);
-  const [stockPrice, setStockPrice] = useState(105);
-  const [contracts, setContracts] = useState(1);
+  const [strike, setStrike] = useState("100");
+const [premium, setPremium] = useState("3");
+const [stockPrice, setStockPrice] = useState("105");
+const [contracts, setContracts] = useState("1");
 
-  const intrinsicValue =
-    strategy === "call"
-      ? Math.max(0, stockPrice - strike)
-      : Math.max(0, strike - stockPrice);
+const strikeNumber = Number(strike) || 0;
+const premiumNumber = Number(premium) || 0;
+const stockPriceNumber = Number(stockPrice) || 0;
+const contractsNumber = Number(contracts) || 0;
 
-  const profitLoss =
-    (intrinsicValue - premium) * 100 * contracts;
+const intrinsicValue =
+  strategy === "call"
+    ? Math.max(0, stockPriceNumber - strikeNumber)
+    : Math.max(0, strikeNumber - stockPriceNumber);
 
-  const breakEven =
-    strategy === "call"
-      ? strike + premium
-      : strike - premium;
+const profitLoss =
+  (intrinsicValue - premiumNumber) * 100 * contractsNumber;
+
+const breakEven =
+  strategy === "call"
+    ? strikeNumber + premiumNumber
+    : strikeNumber - premiumNumber;
 
   return (
     <main className="min-h-screen bg-gray-50 px-6 py-12 text-gray-900">
@@ -62,7 +67,7 @@ export default function Home() {
                 <input
                   type="number"
                   value={strike}
-                  onChange={(event) => setStrike(Number(event.target.value))}
+                  onChange={(event) => setStrike(event.target.value)}
                   className="w-full rounded-2xl border border-gray-200 px-4 py-3"
                 />
               </div>
@@ -75,7 +80,7 @@ export default function Home() {
                   type="number"
                   step="0.01"
                   value={premium}
-                  onChange={(event) => setPremium(Number(event.target.value))}
+                  onChange={(event) => setPremium(event.target.value)}
                   className="w-full rounded-2xl border border-gray-200 px-4 py-3"
                 />
               </div>
@@ -88,7 +93,7 @@ export default function Home() {
                   type="number"
                   value={stockPrice}
                   onChange={(event) =>
-                    setStockPrice(Number(event.target.value))
+                    setStockPrice(event.target.value)
                   }
                   className="w-full rounded-2xl border border-gray-200 px-4 py-3"
                 />
@@ -103,7 +108,7 @@ export default function Home() {
                   min="1"
                   value={contracts}
                   onChange={(event) =>
-                    setContracts(Number(event.target.value))
+                    setContracts(event.target.value)
                   }
                   className="w-full rounded-2xl border border-gray-200 px-4 py-3"
                 />
@@ -129,7 +134,7 @@ export default function Home() {
 
               <ResultCard
                 label="Maximum Loss"
-                value={`$${(premium * 100 * contracts).toFixed(2)}`}
+                value={`$${(premiumNumber * 100 * contractsNumber).toFixed(2)}`}
               />
 
               <div
