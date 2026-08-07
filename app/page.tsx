@@ -1,10 +1,17 @@
 "use client";
 
 import { useState } from "react";
-
+import ResultCard from "../components/ResultCard";
+import PayoffChart from "../components/PayoffChart";
 export default function Home() {
-  const [strategy, setStrategy] = useState<"call" | "put">("call");
-  const [strike, setStrike] = useState("100");
+  const [strategy, setStrategy] = useState<
+  "longCall" |
+  "longPut" |
+  "shortCall" |
+  "shortPut"
+>("longCall");
+
+const [strike, setStrike] = useState("100");
 const [premium, setPremium] = useState("3");
 const [stockPrice, setStockPrice] = useState("105");
 const [contracts, setContracts] = useState("1");
@@ -15,15 +22,16 @@ const stockPriceNumber = Number(stockPrice) || 0;
 const contractsNumber = Number(contracts) || 0;
 
 const intrinsicValue =
-  strategy === "call"
+  strategy === "longCall" || strategy === "shortCall" 
     ? Math.max(0, stockPriceNumber - strikeNumber)
     : Math.max(0, strikeNumber - stockPriceNumber);
 
 const profitLoss =
-  (intrinsicValue - premiumNumber) * 100 * contractsNumber;
-
+  strategy === "longCall" || strategy === "longPut"
+    ? (intrinsicValue - premiumNumber) * 100 * contractsNumber
+    : (premiumNumber - intrinsicValue) * 100 * contractsNumber;
 const breakEven =
-  strategy === "call"
+  strategy === "longCall" || strategy === "shortCall"
     ? strikeNumber + premiumNumber
     : strikeNumber - premiumNumber;
 
@@ -51,12 +59,20 @@ const breakEven =
                 <select
                   value={strategy}
                   onChange={(event) =>
-                    setStrategy(event.target.value as "call" | "put")
+                    setStrategy(
+                    event.target.value as
+                      | "longCall"
+                      | "longPut"
+                      | "shortCall"
+                      | "shortPut"
+)
                   }
                   className="w-full rounded-2xl border border-gray-200 px-4 py-3"
                 >
-                  <option value="call">Long Call</option>
-                  <option value="put">Long Put</option>
+                  <option value="longCall">Long Call</option>
+                  <option value="longPut">Long Put</option>
+                  <option value="shortCall">Short Call</option>
+                  <option value="shortPut">Short Put</option>
                 </select>
               </div>
 
@@ -134,7 +150,15 @@ const breakEven =
 
               <ResultCard
                 label="Maximum Loss"
-                value={`$${(premiumNumber * 100 * contractsNumber).toFixed(2)}`}
+                value={
+                  strategy === "shortCall"
+                    ? "Unlimited"
+                    : `$${(
+                        strategy === "shortPut"
+                          ? Math.max(0, strikeNumber - premiumNumber) * 100 * contractsNumber
+                          : premiumNumber * 100 * contractsNumber
+                      ).toFixed(2)}`
+}
               />
 
               <div
@@ -165,21 +189,8 @@ const breakEven =
           </section>
         </div>
       </div>
+      <PayoffChart />
     </main>
   );
 }
 
-function ResultCard({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="rounded-2xl bg-gray-100 p-5">
-      <p className="text-sm text-gray-500">{label}</p>
-      <p className="mt-2 text-2xl font-semibold">{value}</p>
-    </div>
-  );
-}
